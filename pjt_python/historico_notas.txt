@@ -1,0 +1,36 @@
+--- Registro de Notas ---
+Nota 1: 5.0
+Nota 2: 6.0
+Nota 3: 7.0
+Nota 4: 8.0
+Média: 6.50
+Situação: Recuperação.
+-------------------------
+
+--- Registro de Notas ---
+Nota 1: 58.0
+Nota 2: 55.0
+Nota 3: 65.0
+Nota 4: 98.0
+Média: 69.00
+Situação: Aprovado!
+-------------------------
+
+--- Registro de Notas ---
+Nota 1: 25.0
+Nota 2: 26.0
+Nota 3: 27.0
+Nota 4: 28.0
+Média: 26.50
+Situação: Aprovado!
+-------------------------
+
+--- Registro de Notas ---
+Nota 1: 5.0
+Nota 2: 6.0
+Nota 3: 8.0
+Nota 4: 9.0
+Média: 7.00
+Situação: Aprovado!
+-------------------------
+

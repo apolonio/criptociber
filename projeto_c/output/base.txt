@@ -1,0 +1,3 @@
+Produto: omputador
+Preco: 1500
+Quantidade: 2
